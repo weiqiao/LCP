@@ -3,28 +3,31 @@ y0 = 0.5;
 z0 = 0;
 theta0 = pi/6;
 t0 = 0;
-q0=[x0;y0;z0;theta0];
+q0=[x0;y0;z0;theta0;0];
 
-h = 5/100;
-n = 200;
+h = 2/100;
+n = 500;
 z_static = zeros(25, n);
+z_MIQP = zeros(48, n); 
 
 t = t0;
-z_static(1:4,1)=q0;
-z_MILP = z_static; % quasi-dynamic
+z_static(1:5,1)=q0;
+z_MIQP(1:6,1) = [q0;0.25]; % qa(t=0) = 0.25;
+
 for i = 1:1:n-1
   if i==304
     disp('hello')
   end
-  z_static(:,i+1) = RodTimeStepping2(z_static(1:4,i), t, h);
-  z_MILP(:,i+1) = RodTimeStepping2_MILP(z_MILP(1:4,i), h, yG(t), yG_dot(t));
+  z_static(:,i+1) = RodTimeStepping2(z_static(1:5,i), t, h);
+  z_MIQP(:,i+1) = RodTimeStepping2_MILP(z_MIQP(1:5,i), z_MIQP(6,i), h, 0.1);
   t = t+h;
 end
 
 %% plot
 l = 0.5;
-im = cell(n,1);
-for i=1:1:n
+steps_per_frame = 5;
+im = cell(n/steps_per_frame,1);
+for i=1:steps_per_frame:n
   xc = z_static(1,i);
   yc = z_static(2,i);
   theta = z_static(4,i);
@@ -33,9 +36,9 @@ for i=1:1:n
   plot(x, y, '-ro')
   hold on
   
-  xc = z_MILP(1,i);
-  yc = z_MILP(2,i);
-  theta = z_MILP(4,i);
+  xc = z_MIQP(1,i);
+  yc = z_MIQP(2,i);
+  theta = z_MIQP(4,i);
   x = [xc - cos(theta)*l/2; xc + cos(theta)*l/2];
   y = [yc - sin(theta)*l/2; yc + sin(theta)*l/2];
   plot(x, y, '--go')
@@ -63,7 +66,7 @@ for i=1:1:n
   legend('LCP', 'MIQP')
   drawnow
   frame = getframe(1);
-  im{i} = frame2im(frame);
+  im{floor(i/steps_per_frame)+1} = frame2im(frame);
   % pause(2*h)
 end
 

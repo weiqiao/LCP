@@ -6,7 +6,6 @@ xc = ql(1);
 yc = ql(2);
 zc = ql(3);
 theta = ql(4);
-ql = [ql;0];
 
 % defining constants
 r = 0.05; % m
