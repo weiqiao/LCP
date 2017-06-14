@@ -1,5 +1,9 @@
 function z = Mixed_LCP_As_MILP2(R, b, nu, na, h, qa_dot_d)
-% force balance equality constraint replaced by objective.
+% objective:
+% min ||q(l+1)-q(l)|| + M*(z_q + z_f)
+% q includes both q_a (actuated) and q_u(unactuated)
+% z_q is a binary variable indicating whether q_a_dot == q_a_dot_desired (z_q = 0 if equality holds)
+% z_f indicates whether force balance is satisfied (z_f = o if equality holds)
 
 M = 50; %big M
 n1 = nu + na;

@@ -19,7 +19,7 @@ for i = 1:1:n-1
     disp('hello')
   end
   z_static(:,i+1) = RodTimeStepping2(z_static(1:5,i), t, h);
-  z_MIQP(:,i+1) = RodTimeStepping2_MILP(z_MIQP(1:5,i), z_MIQP(6,i), h, 0.1);
+  z_MIQP(:,i+1) = RodTimeStepping2_MILP(z_MIQP(1:5,i), z_MIQP(6,i), 0.1, h);
   t = t+h;
 end
 
