@@ -1,21 +1,30 @@
 clear 
+clc
 
 x0 = 0.1;
 y0 = 0;
+z0 = 0;
 t0 = 0;
-q0=[x0;y0;0.2];
-qa_dot_desired = -0.1;
+q0=[x0;y0;0;0.2;-0.1];
+qa_dot_desired = [-0.1;0.1];
 
 h = 1/100;
 n = 150;
-z_MIQP = zeros(21, n); 
-
+nu = 3;
+na = 2;
+z_MIQP = zeros(41, n-1); 
+delta_q_u = zeros(nu,n-1);
+q = zeros(nu+na,n);
 t = t0;
-z_MIQP(1:3,1)=q0;
+z_MIQP(1:5,1)=q0;
+q(:,1) = q0;
 
 for i = 1:1:n-1
-  disp(i)
-  z_MIQP(:,i+1) = BallSqueezing_MILP(z_MIQP(1:2,i), z_MIQP(3,i), qa_dot_desired, h);
+  if i == 51
+    disp(i)
+  end
+  [z_MIQP(:,i), delta_q_u(:,i)] = BallSqueezAndPush2_MIQP(q(1:3,i), q(4:5,i), qa_dot_desired, h);
+  q(:,i+1) = q(:,i) + [delta_q_u(:,i);z_MIQP(nu+1:nu+na, i)];
 end
 
 %% plot
@@ -24,14 +33,16 @@ r = 0.05;
 steps_per_frame = 1;
 im = cell(n/steps_per_frame,1);
 for i=1:steps_per_frame:n  
-  xc = z_MIQP(1,i);
-  yc = z_MIQP(2,i);
+  xc = q(1,i);
+  yc = q(2,i);
   rectangle('Position',[xc-r, yc-r, 2*r, 2*r],'Curvature',[1 1],'FaceColor',[0 .5 .5])
   hold on
-  xf = z_MIQP(3,i);
+  xf = q(4,i);
+  yf = q(5,i);
   plot([xf, xf], [-1, 1])
+  plot([-1,1], [yf, yf]);
   plot([0, 0], [-1, 1])
-  axis([-0.2 0.3 -0.5 0.1])
+  axis([-0.2 0.2 -0.3 0.3])
   axis equal
   grid on
   hold off
@@ -43,7 +54,7 @@ for i=1:steps_per_frame:n
 end
 
 %% save to gif
-filename = 'BallSqueezingNoFriction.gif'; % Specify the output file name
+filename = 'BallSqueezeAndPush.gif'; % Specify the output file name
 for idx = 1:size(im)
     [A,map] = rgb2ind(im{idx},256);
     if idx == 1

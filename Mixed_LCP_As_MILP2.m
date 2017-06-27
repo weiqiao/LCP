@@ -1,11 +1,11 @@
-function z = Mixed_LCP_As_MILP2(R, b, nu, na, h, qa_dot_d)
+function z = Mixed_LCP_As_MILP2(R, b, nu, na, h, qa_dot_d, M1, M2)
 % objective:
 % min ||q(l+1)-q(l)|| + M*(z_q + z_f)
 % q includes both q_a (actuated) and q_u(unactuated)
 % z_q is a binary variable indicating whether q_a_dot == q_a_dot_desired (z_q = 0 if equality holds)
 % z_f indicates whether force balance is satisfied (z_f = o if equality holds)
 
-M = 50; %big M
+M = M1; %big M
 n1 = nu + na;
 A = R(1:nu,1:n1);
 B = R(1:nu,n1+1:end);
@@ -39,7 +39,7 @@ model.sense = charArray;
 
 % set objective
 N = n1 + n2*2 + 2; % number of decision variables
-model.obj = [zeros(1,N-2), M, M];
+model.obj = [zeros(1,N-2), M2, M2];
 Q = zeros(N);
 Q(1:n1, 1:n1) = eye(n1)/h^2;
 model.Q = sparse(Q);
@@ -59,5 +59,6 @@ model.vtype = charArray;
 params.outputflag = 0;
 
 result = gurobi(model, params);
+disp(result)
 z = result.x;
 

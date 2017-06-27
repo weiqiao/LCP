@@ -1,4 +1,4 @@
-function z = RodTimeStepping2_MILP(qu, qa, qa_dot_d, h)
+function [z, delta_q_u] = RodTimeStepping2_MIQP(qu, qa, qa_dot_d, h)
 % assuming friction force between table and rod exists at both ends of the
 % rod. 
 % qa = yG(t) \in R^1
@@ -21,6 +21,8 @@ nu = 5; % number of unactuated states
 na = 1; % number of actuated states
 n = nu + na;
 nc = 4; % number of contacts
+nf = [2, 2, 4, 4];
+nd = sum(nf); % no. of columns in Wf
 
 Wf1 = @(theta) [1 0 0 l/2*sin(theta);-1 0  0 -l/2*sin(theta)]';
 Wf2 = @(theta) [1 0 0 -l/2*sin(theta);-1 0  0 l/2*sin(theta)]';
@@ -29,7 +31,6 @@ Wf3 = @(theta) [1 0 0 l/2*sin(theta);0 1 0 -l/2*cos(theta);
 Wf4 = @(theta) [1 0 0 -l/2*sin(theta);0 1 0 l/2*cos(theta);
                -1 0 0 l/2*sin(theta);0 -1 0 -l/2*cos(theta)]';
 Wf = [Wf1(theta), Wf2(theta), Wf3(theta), Wf4(theta)];
-nd = size(Wf,2); % no. of columns in Wf
 Wf = [Wf;zeros(1,nd)];
 
 n1 = @(theta) [0 1 0 -l/2*cos(theta)]';
@@ -39,14 +40,15 @@ n4 = [0 0 1 0]';
 Wn = [n1(theta), n2(theta), n3, n4];
 Wn = [Wn;[0 0 1 -1]];
 
-Ja = zeros(nc+nd,1);
+Ja = zeros(nc+nd,na);
 Ja(1:2) = -1;
 
 E = zeros(nc, nd);
-E(1,1:2) = 1;
-E(2,3:4) = 1;
-E(3,5:8) = 1;
-E(4,9:12) = 1;
+first = 1;
+for i = 1:1:nc
+  E(i, first:first+nf(i)-1) = 1;
+  first = first + nf(i);
+end
 E = E';
 U = diag([mu, mu, mu, mu]);
 B = [zeros(nu,n) Wn Wf zeros(nu,nc);
@@ -65,5 +67,10 @@ bf = zeros(nd,1); % 4*1
 b = [f; bn; bf; zeros(nc,1)];
 
 %% call solver
-z = Mixed_LCP_As_MILP2(B,b,nu,na,h,qa_dot_d);
-z(1:n) = z(1:n) + [qu_l;qa_l];
+M = 50;
+z = Mixed_LCP_As_MILP3(B,b,nu,na,h,qa_dot_d, M);
+% delta_q_u = z(1:nu);
+
+% QP to minimize delta_qu
+epsilon = 1e-9;
+delta_q_u = MinDeltaQu_QP(z, Wn, Wf, Ja, phi_n, nu, na, nc, nd, nf, epsilon);

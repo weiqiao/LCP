@@ -8,7 +8,7 @@ zc = ql(3);
 theta = ql(4);
 
 % defining constants
-r = 0.05; % m
+r = 0; % m
 l = 0.5; % m
 mu = 0.6;
 f = [0;0;-9.8;0];
@@ -49,8 +49,8 @@ B = [zeros(n+1,n+1) Wn Wf zeros(n+1,nc);
 %%
 % yG = @(t) t;
 phi_n = zeros(4,1);
-phi_n(1) = yc - l/2*sin(theta) -yG(t); 
-phi_n(2) = yc + l/2*sin(theta) -yG(t);
+phi_n(1) = yc - l/2*sin(theta) -r - yG(t); 
+phi_n(2) = yc + l/2*sin(theta) -r - yG(t);
 phi_n(3) = zc; 
 phi_n(4) = zc;
 bn = phi_n + h*[-1;-1;0;0]*0.1 - Wn'*ql; % 4*1
