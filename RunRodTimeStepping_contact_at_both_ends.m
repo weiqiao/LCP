@@ -86,7 +86,7 @@ for i=1:steps_per_frame:n
 end
 
 %% save to gif
-filename = 'LCP_as_MIQP_big_M_cost_on_force_balance_and_actuated_velocity.gif'; % Specify the output file name
+filename = 'LCP_vs_MIQP+QP.gif'; % Specify the output file name
 for idx = 1:size(im)
     [A,map] = rgb2ind(im{idx},256);
     if idx == 1
