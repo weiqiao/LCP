@@ -1,4 +1,4 @@
-function z = Mixed_LCP_As_MILP3(R, b, nu, na, h, qa_dot_d, M)
+function z = Mixed_LCP_As_MILP3(R, b, nu, na, h, qa_dot_d, M, z_start)
 % objective:
 % min ||q_a_desired(l+1)-q_a(l)|| 
 
@@ -45,6 +45,9 @@ charArray = char(zeros(1,N));
 charArray(1:n1+n2) = 'C';
 charArray(n1+n2+1:end) = 'B';
 model.vtype = charArray;
+
+% warm starting
+model.start = z_start;
 
 % set params
 params.outputflag = 0;

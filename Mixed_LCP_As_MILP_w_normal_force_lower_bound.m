@@ -14,13 +14,18 @@ phi_n = b2(1:nc);
 
 % integrator with anti-windup
 K = 1000;
-lambda_n_lb = K*abs(penetration);
+% lambda_n_lb = K*abs(penetration);
+% for i = 1:length(lambda_n_lb)
+%   if lambda_n_lb(i) > M
+%     lambda_n_lb(i) = M;
+%   end
+% end
+lambda_n_lb = zeros(length(penetration), 1);
 for i = 1:length(lambda_n_lb)
-  if lambda_n_lb(i) > M
-    lambda_n_lb(i) = M;
+  if penetration(i) < -1e-6
+    lambda_n_lb(i) = 10;
   end
 end
-
 % big M for lambda_n and phi_n
 M_phi = 1e5;
 M_f = M_phi/K; 

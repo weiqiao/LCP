@@ -1,4 +1,4 @@
-function [z, delta_q_u] = RodTimeStepping2_MIQP(qu, qa, qa_dot_d, h)
+function [z, delta_q_u] = RodTimeStepping2_MIQP(qu, qa, qa_dot_d, h, z_start)
 % assuming friction force between table and rod exists at both ends of the
 % rod. 
 % qa = yG(t) \in R^1
@@ -68,9 +68,9 @@ b = [f; bn; bf; zeros(nc,1)];
 
 %% call solver
 M = 50;
-z = Mixed_LCP_As_MILP3(B,b,nu,na,h,qa_dot_d, M);
-% delta_q_u = z(1:nu);
+z = Mixed_LCP_As_MILP3(B,b,nu,na,h,qa_dot_d, M, z_start);
+delta_q_u = z(1:nu);
 
 % QP to minimize delta_qu
-epsilon = 1e-9;
-delta_q_u = MinDeltaQu_QP(z, Wn, Wf, Ja, phi_n, nu, na, nc, nd, nf, epsilon);
+%epsilon = 1e-9;
+%delta_q_u = MinDeltaQu_QP(z, Wn, Wf, Ja, phi_n, nu, na, nc, nd, nf, epsilon);

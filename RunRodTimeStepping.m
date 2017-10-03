@@ -11,12 +11,13 @@ z_static = zeros(20, n);
 
 t = t0;
 z_static(1:4,1)=q0;
-z_quasi_dynamic = z_static; % quasi-dynamic
+
+profile on
 for i = 1:1:n-1
   z_static(:,i+1) = RodTimeStepping5(z_static(1:4,i), t, h);
-  z_quasi_dynamic(:,i+1) = RodTimeStepping5_2(z_quasi_dynamic(1:4,i), t, h);
   t = t+h;
 end
+profile viewer
 
 %% plot
 l = 0.5;
@@ -30,22 +31,6 @@ for i=1:10:n
   plot(x, y, '-ro')
   hold on
   
-  xc = z_quasi_dynamic(1,i);
-  yc = z_quasi_dynamic(2,i);
-  theta = z_quasi_dynamic(4,i);
-  x = [xc - cos(theta)*l/2; xc + cos(theta)*l/2];
-  y = [yc - sin(theta)*l/2; yc + sin(theta)*l/2];
-  plot(x, y, '--go')
-  
-  %%%%%%%% plot dynamic trajectory from dynamic rod2d simulation
-  xc = q(1,i);
-  yc = q(2,i);
-  theta = q(4,i);
-  x = [xc - cos(theta)*l/2; xc + cos(theta)*l/2];
-  y = [yc - sin(theta)*l/2; yc + sin(theta)*l/2];
-  plot(x, y, '--bo')
-  %%%%%%%%%%%%%%
-  
   % original position
 %   xl0 = [x0 - cos(theta0)*l/2; x0 + cos(theta0)*l/2];
 %   yl0 = [y0 - sin(theta0)*l/2; y0 + sin(theta0)*l/2];
@@ -57,7 +42,6 @@ for i=1:10:n
   axis([-0.5 0.5 0 2.5])
   axis equal
   grid on
-  legend('quasi-static', 'quasi-dynamic', 'dynamic')
   drawnow
   frame = getframe(1);
   im{floor(i/10)+1} = frame2im(frame);
