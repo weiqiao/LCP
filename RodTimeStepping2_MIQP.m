@@ -69,8 +69,8 @@ b = [f; bn; bf; zeros(nc,1)];
 %% call solver
 M = 50;
 z = Mixed_LCP_As_MILP3(B,b,nu,na,h,qa_dot_d, M, z_start);
-delta_q_u = z(1:nu);
+% delta_q_u = z(1:nu);
 
 % QP to minimize delta_qu
-%epsilon = 1e-9;
-%delta_q_u = MinDeltaQu_QP(z, Wn, Wf, Ja, phi_n, nu, na, nc, nd, nf, epsilon);
+epsilon = 1e-6;
+delta_q_u = MinDeltaQu_QP(z, Wn, Wf, Ja, phi_n, nu, na, nc, nd, nf, epsilon);

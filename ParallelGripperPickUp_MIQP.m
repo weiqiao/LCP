@@ -1,7 +1,7 @@
 function [z, delta_q_u, penetration1] = ParallelGripperPickUp_MIQP(qu, qa, qa_dot_d, h, penetration, is_MIQP)
 % The ball (point mass) is placed on a table. 
 
-nu = 2; % number of unactuated states
+nu = 3; % number of unactuated states
 na = 3; % number of actuated states
 n = nu + na;
 nc = 3; % number of contacts
@@ -16,17 +16,20 @@ y = qu_l(2);
 xl = qa_l(1);
 xr = qa_l(2);
 yg = qa_l(3);
+r = 0.05;
 
 % defining constants
 r = 0.05; % m
 mu = 0.5;
-f = [0;-9.8];
+f = [0;-9.8;0];
 
 Wf = [0  0 0  0 1 -1; 
-      1 -1 1 -1 0  0;]; 
+      1 -1 1 -1 0  0;
+      -r r r -r r -r]; 
 
 Wn = [1 -1 0;
-      0  0 1;];
+      0  0 1;
+      0 0 0];
 Ja = zeros(nc+nd,na);
 Ja(1,1) = -1;
 Ja(2,2) = 1;
@@ -86,5 +89,5 @@ else
 end
 penetration1 = CalcPenetration(Wn, Ja(1:nc, :), delta_q_u, delta_q_a_d, phi_n, penetration);
 % QP to minimize delta_qu
-%epsilon = 1e-6;
-%delta_q_u = MinDeltaQu_QP(z, Wn, Wf, Ja, phi_n, nu, na, nc, nd, nf, epsilon);
+epsilon = 1e-6;
+% delta_q_u = MinDeltaQu_QP(z, Wn, Wf, Ja, phi_n, nu, na, nc, nd, nf, epsilon);

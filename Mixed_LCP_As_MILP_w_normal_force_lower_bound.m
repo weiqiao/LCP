@@ -59,8 +59,11 @@ model.Q = sparse(Q);
 
 % set lower bound
 lb = zeros(N,1);
-lb(1:n1) = -Inf;
+lb(1:n1) = -0.1;
+ub = ones(N,1) * inf;
+ub(1:n1) = 0.1;
 model.lb = lb;
+model.ub = ub;
 
 % set variable types
 charArray = char(zeros(1,N));

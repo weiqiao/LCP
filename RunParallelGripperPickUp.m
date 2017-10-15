@@ -5,10 +5,11 @@ close all
 r = 0.05;
 x0 = 0;
 y0 = r;
+theta0 = 0;
 xl0 = x0 - r-0.02;
 xr0 = x0 + r+0.02;
 yg0 = r;
-q0=[x0;y0;xl0;xr0;yg0];
+q0=[x0;y0;theta0;xl0;xr0;yg0];
 qa_dot_desired_0 = [0.1;-0.1;0.1];
 phi_n0 = zeros(3,1);
 phi_n0(1) = x0 - xl0 - r; 
@@ -17,10 +18,10 @@ phi_n0(3) = y0 - r;
 
 h = 1/100;
 n = 60;
-nu = 2;
+nu = 3;
 na = 3;
 nc = 3;
-z_MIQP = zeros(29, n-1); 
+z_MIQP = zeros(30, n-1); 
 delta_q_u = zeros(nu,n-1);
 q = zeros(nu+na,n);
 penetration = zeros(nc, n);
@@ -28,7 +29,7 @@ penetration(:,1) = phi_n0;
 z_MIQP(1:nu+na,1)=q0;
 q(:,1) = q0;
 
-is_MIQP = false;
+is_MIQP = true;
 for i = 1:1:n-1
   if i == 20
     disp(i)
@@ -47,9 +48,9 @@ for i=1:steps_per_frame:n
   yc = q(2,i);
   rectangle('Position',[xc-r, yc-r, 2*r, 2*r],'Curvature',[1 1],'FaceColor',[0 .5 .5])
   hold on
-  xl = q(3,i);
-  xr = q(4,i);
-  yg = q(5,i);
+  xl = q(4,i);
+  xr = q(5,i);
+  yg = q(6,i);
   plot([-1, 1], [0, 0]) % ground
   plot([xl, xl], [yg-r, yg+2*r]);
   plot([xr, xr], [yg-r, yg+2*r])
@@ -65,7 +66,7 @@ for i=1:steps_per_frame:n
 end
 
 %% save to gif
-filename = 'ParallelGripperPickUp.gif'; % Specify the output file name
+filename = 'ParallelGripperPickUp_without_QP.gif'; % Specify the output file name
 for idx = 1:size(im)
     [A,map] = rgb2ind(im{idx},256);
     if idx == 1
@@ -153,15 +154,17 @@ ax.Position = [left bottom ax_width ax_height];
 
 % plot 4: CG of cylinder x and y position vs. time
 h4 = figure(4);
-stairs(1:n, q(1,:), 'LineWidth', 2)
+stairs(1:n, q(1,:), '-r', 'LineWidth', 2)
 hold on
-stairs(1:n, q(2,:), 'LineWidth', 2)
-stairs(1:n, penetration(1,:), 'LineWidth', 2)
+stairs(1:n, q(2,:), '-g', 'LineWidth', 2)
+stairs(1:n, r*q(3,:), '-m','LineWidth', 2)
+stairs(1:n, penetration(1,:), '-b', 'LineWidth', 2)
 grid on
 axis([1, n, -0.01, 0.07])
 xlabel 'l (time step)'
 ylabel '(meter)'
-l = legend('$$x_c$$', '$$y_c$$', '$$\bar{\phi}_{n_1}$$', 'Location', 'best');
+
+l = legend('$$x_c$$', '$$y_c$$','$$\theta r$$','$$\bar{\phi}_{n_1}$$', 'Location', 'best');
 set(l, 'Interpreter','latex', 'FontSize', font_size);
 set(h4,'units','points','position',[10,400,width,height+50])
 ax = gca;
@@ -229,18 +232,18 @@ ax_height = outerpos(4) - ti(2) - ti(4);
 ax.Position = [left bottom ax_width ax_height];
 %% save plots
 if(is_MIQP)
-  print(h1,'~\Dropbox (MIT)\ICRA2018\delta_xl_vs_time','-depsc')
-  print(h2,'~\Dropbox (MIT)\ICRA2018\delta_xr_vs_time','-depsc')
-  print(h3,'~\Dropbox (MIT)\ICRA2018\delta_yg_vs_time','-depsc')
-  print(h4,'~\Dropbox (MIT)\ICRA2018\xy_object_vs_time','-depsc')
-  print(h5,'~\Dropbox (MIT)\ICRA2018\gripper_normal_force_vs_time','-depsc')
-  print(h6,'~\Dropbox (MIT)\ICRA2018\ground_normal_force_vs_time','-depsc')
+  print(h1,'~\Dropbox (MIT)\QuasistaticSimulatorPaper\delta_xl_vs_time','-depsc')
+  print(h2,'~\Dropbox (MIT)\QuasistaticSimulatorPaper\delta_xr_vs_time','-depsc')
+  print(h3,'~\Dropbox (MIT)\QuasistaticSimulatorPaper\delta_yg_vs_time','-depsc')
+  print(h4,'~\Dropbox (MIT)\QuasistaticSimulatorPaper\xy_object_vs_time','-depsc')
+  print(h5,'~\Dropbox (MIT)\QuasistaticSimulatorPaper\gripper_normal_force_vs_time','-depsc')
+  print(h6,'~\Dropbox (MIT)\QuasistaticSimulatorPaper\ground_normal_force_vs_time','-depsc')
 end
 
 if(~is_MIQP) 
-  print(h4,'~\Dropbox (MIT)\ICRA2018\xy_object_vs_time_lcp','-depsc')
-  print(h5,'~\Dropbox (MIT)\ICRA2018\gripper_normal_force_vs_time_lcp','-depsc')
-  print(h6,'~\Dropbox (MIT)\ICRA2018\ground_normal_force_vs_time_lcp','-depsc')
+  print(h4,'~\Dropbox (MIT)\QuasistaticSimulatorPaper\xy_object_vs_time_lcp','-depsc')
+  print(h5,'~\Dropbox (MIT)\QuasistaticSimulatorPaper\gripper_normal_force_vs_time_lcp','-depsc')
+  print(h6,'~\Dropbox (MIT)\QuasistaticSimulatorPaper\ground_normal_force_vs_time_lcp','-depsc')
 end
 
 

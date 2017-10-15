@@ -26,10 +26,10 @@ q(:,1) = q0;
 
 profile on
 for i = 1:1:n-1
-%   if i==26
-%     disp('hello')
-%   end
-%   disp(i)
+  if i==50
+    disp('hello')
+  end
+  disp(i)
   z_static(:,i+1) = RodTimeStepping2(z_static(1:5,i), t, h);
   [z_MIQP(:,i+1), delta_q_u(:,i)] = RodTimeStepping2_MIQP(q(1:nu,i), q(nu+1:nu+na,i), 0.1, h, z_MIQP(:, i));
   q(:,i+1) = q(:,i) + [delta_q_u(:,i);z_MIQP(nu+1:nu+na, i+1)];
